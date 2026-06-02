@@ -1,0 +1,37 @@
+# Define your signal receivers here.
+from django.db.models.signals import pre_save
+from django.dispatch import receiver
+from django.utils import timezone
+
+from hospital_app.models import Appointment
+
+
+@receiver(pre_save, sender=Appointment)
+def appointment_status_fix(sender, instance, **kwargs):
+
+    if not instance.datetime:
+        return
+
+    now = timezone.now()
+
+    if instance.status == "completed" and instance.datetime > now:
+        instance.status = "scheduled"
+
+    if instance.status == "scheduled" and instance.datetime < now:
+        instance.status = "completed"
+
+@receiver(pre_save, sender=Appointment)
+def increment_counter(sender, instance, **kwargs):
+
+    if not instance.pk:
+        return
+
+    old = Appointment.objects.get(pk=instance.pk)
+
+    if (
+        old.status == "in_progress"
+        and instance.status == "completed"
+    ):
+        doctor = instance.responsible_doctor
+        doctor.completed_appointments += 1
+        doctor.save()

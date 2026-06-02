@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+{{ doctor.full_name }}
+
+{% for a in past_appointments %}
+    {{ a }}
+{% endfor %}
+
+{% for a in today_appointments %}
+    {{ a }}
+{% endfor %}
+
+{% for a in future_appointments %}
+    {{ a }}
+{% endfor %}
+
+</body>
+</html>
